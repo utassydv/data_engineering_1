@@ -1,15 +1,25 @@
+-- CREATE DATABASE AND LOAD DATA
+
+-- create  database / schema
 CREATE SCHEMA firstdb;
+
+-- not case sensitive
 create schema FIRSTDB;
 
+-- select database for further operations
 USE firstdb;
 
+-- deleteting database. execute twice
 DROP SCHEMA firstdb;
+
+-- instead
 DROP SCHEMA IF EXISTS firstdb;
 
+-- recreate db
+CREATE SCHEMA birdstrikes;
+USE birdstrikes ;
 
-CREATE SCHEMA firstdb;
-USE firstdb;
-
+-- create an empty table
 CREATE TABLE birdstrikes 
 (id INTEGER NOT NULL,
 aircraft VARCHAR(32),
@@ -21,21 +31,17 @@ phase_of_flight VARCHAR(32),
 reported_date DATE,
 bird_size VARCHAR(16),
 cost INTEGER NOT NULL,
-speed INTEGER,PRIMARY KEY(id));
+speed INTEGER,
+PRIMARY KEY(id));
 
+-- the place from where is allowed to load a CSV
 SHOW VARIABLES LIKE "secure_file_priv";
+SHOW VARIABLES LIKE "local_infile";
 
-LOAD DATA INFILE '~/birdstrikes_small.csv' 
-INTO TABLE birdstrikes 
-FIELDS TERMINATED BY ';' 
-LINES TERMINATED BY '\r\n' 
-IGNORE 1 LINES 
-(id, aircraft, flight_date, damage, airline, state, phase_of_flight, @v_reported_date, bird_size, cost, @v_speed)
-SET
-reported_date = nullif(@v_reported_date, ''),
-speed = nullif(@v_speed, '');
 
-LOAD DATA LOCAL INFILE '/birdstrikes_small.csv'
+
+-- load data into that table (change the path if needed)
+LOAD DATA LOCAL INFILE '/Users/utassydv/Documents/workspaces/CEU/official_repos/DE1SQL/SQL1/birdstrikes_small.csv'
 INTO TABLE birdstrikes
 FIELDS TERMINATED BY ';'
 LINES TERMINATED BY '\n'
@@ -45,12 +51,25 @@ SET
 speed = nullif(@v_speed, ''),
 reported_date = nullif(@v_reported_date, '');
 
+
+
+-- EXPLORING DB
+
+-- list tables
 SHOW TABLES;
 
+-- structure of birdstrikes
 DESCRIBE birdstrikes;
 
+-- content of birdstrikes
 SELECT * FROM birdstrikes;
 
+-- retrive certain field(s):
 SELECT cost FROM birdstrikes;
-
 SELECT airline,cost FROM birdstrikes;
+
+-- second schema for dump
+CREATE SCHEMA second;
+DROP SCHEMA second;
+
+-- rate the session
