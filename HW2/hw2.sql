@@ -20,6 +20,7 @@ PRIMARY KEY(id));
 
 -- this should be ON
 SHOW VARIABLES LIKE "local_infile";
+SET GLOBAL local_infile = 'ON';
 
 
 -- Data loading in
