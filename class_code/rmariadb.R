@@ -3,11 +3,11 @@ install.packages("RMariaDB")
 library(RMariaDB)
 
 # connect
-birdstrikesDb <- dbConnect(RMariaDB::MariaDB(), user='root', password='AlmaKorte6', dbname='birdstrikes', host='localhost')
+birdstrikesDb <- dbConnect(RMariaDB::MariaDB(), user='root', password='Dragondragon05', dbname='birdstrikes', host='localhost')
 
 
 # list all tables stored in db
-dbListTables(birdstrikesDb)
+tables <- dbListTables(birdstrikesDb)
 
 # compose a query
 query<-paste("SELECT * FROM birdstrikes WHERE state='Texas'")
@@ -21,3 +21,4 @@ dbRows<-dbFetch(rs)
 
 #close connection
 dbDisconnect(birdstrikesDb)
+
