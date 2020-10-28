@@ -1,170 +1,89 @@
-use classicmodels;
+USE classicmodels;
 
--- basic
-DROP PROCEDURE IF EXISTS GetAllProducts;
+-- Creating a table
+CREATE TABLE area_codes 
+(city VARCHAR(255)  NOT NULL,
+AreaCode INTEGER NOT NULL,
+PRIMARY KEY(city));
 
-DELIMITER //
+-- this should be ON
+SHOW VARIABLES LIKE "local_infile";
+-- SET GLOBAL local_infile = 'ON';
 
-CREATE PROCEDURE GetAllProducts()
-BEGIN
-	SELECT *  FROM products;
-END //
-
-DELIMITER ;
-
-CALL GetAllProducts();
-
--- IN
-DROP PROCEDURE IF EXISTS GetOfficeByCountry;
-
-DELIMITER //
-
-CREATE PROCEDURE GetOfficeByCountry(
-	IN countryName VARCHAR(255)
-)
-BEGIN
-	SELECT * 
- 		FROM offices
-			WHERE country = countryName;
-END //
-DELIMITER ;
-
-CALL GetOfficeByCountry('USA'); 
-CALL GetOfficeByCountry('France'); 
-CALL GetOfficeByCountry();
-
--- Exercise1: Create a stored procedure which displays the first X entries of payment table. X is IN parameter for the procedure.
--- IN
-DROP PROCEDURE IF EXISTS GetXPayment;
-
-DELIMITER //
-
-CREATE PROCEDURE GetXPayment(IN number INTEGER)
-BEGIN
-	SELECT * FROM payments LIMIT 0,number;
-END //
-DELIMITER ;
+TRUNCATE area_codes;
+-- Data loading in
+LOAD DATA LOCAL INFILE '/Users/utassydv/Documents/workspaces/CEU/my_repos/data_engineering_1/HW5/HW5.csv'
+INTO TABLE area_codes
+FIELDS TERMINATED BY ','
+LINES TERMINATED BY '\r\n'
+IGNORE 1 LINES
+(city, AreaCode);
 
 
-CALL GetXPayment(5);
-
--- SELECT * FROM payments;
-
-
--- OUT
-DROP PROCEDURE IF EXISTS GetOrderCountByStatus;
-
+DROP PROCEDURE IF EXISTS FixUSPhones; 
 DELIMITER $$
 
-CREATE PROCEDURE GetOrderCountByStatus (
-	IN  orderStatus VARCHAR(25),
-	OUT total INT
-)
+CREATE PROCEDURE FixUSPhones ()
 BEGIN
-	SELECT COUNT(orderNumber)
-	INTO total
-	FROM orders
-	WHERE status = orderStatus;
-END$$
-DELIMITER ;
+	DECLARE finished INTEGER DEFAULT 0;
+	DECLARE phone varchar(50) DEFAULT "x";
+	DECLARE customerNumber INT DEFAULT 0;
+	DECLARE country varchar(50) DEFAULT "";
+    DECLARE city varchar(50) DEFAULT "";
+    DECLARE areacode varchar(50) DEFAULT "";
 
-CALL GetOrderCountByStatus('Shipped',@total);
-SELECT @total;
+	-- declare cursor for customer
+	DECLARE curPhone
+		CURSOR FOR 
+            SELECT customers.customerNumber, customers.phone, customers.country, customers.city FROM classicmodels.customers;
 
--- Exercise2: Create a stored procedure which returns the amount for Xth entry of payment table. X is IN parameter for the procedure. Display the returned amount.
-DROP PROCEDURE IF EXISTS GetAmount;
-DELIMITER $$
-CREATE PROCEDURE GetAmount (
-	IN  X INT,
-	OUT amount_out DOUBLE
-)
-BEGIN
-    SET X = X-1;
-    SELECT amount INTO amount_out FROM payments LIMIT X,1;
-END$$
-DELIMITER ;
+	-- declare NOT FOUND handler
+	DECLARE CONTINUE HANDLER 
+        FOR NOT FOUND SET finished = 1;
 
-CALL GetAmount(1,@amount);
-SELECT @amount;
-
-SELECT * from payments;
-
--- INOUT
-
-DROP PROCEDURE IF EXISTS SetCounter;
-
-DELIMITER $$
-
-CREATE PROCEDURE SetCounter(
-	INOUT counter INT,
-    	IN inc INT
-)
-BEGIN
-	SET counter = counter + inc;
-END$$
-DELIMITER ;
-
-SET @counter = 1;
-CALL SetCounter(@counter,1); 
-SELECT @counter;
-CALL SetCounter(@counter,1); 
-SELECT @counter;
-CALL SetCounter(@counter,-1); 
-SELECT @counter;
-
--- IF
-
-DROP PROCEDURE IF EXISTS GetCustomerLevel;
-
-DELIMITER $$
-
-CREATE PROCEDURE GetCustomerLevel(
-    	IN  pCustomerNumber INT, 
-    	OUT pCustomerLevel  VARCHAR(20)
-)
-BEGIN
-	DECLARE credit DECIMAL DEFAULT 0;
-
-	SELECT creditLimit 
-		INTO credit
-			FROM customers
-				WHERE customerNumber = pCustomerNumber;
-
-	IF credit > 50000 THEN
-		SET pCustomerLevel = 'PLATINUM';
-	ELSE
-		SET pCustomerLevel = 'NOT PLATINUM';
-	END IF;
-END$$
-DELIMITER ;
-
-select * from payments;
-CALL GetCustomerLevel(447, @level);
-SELECT @level;
-
--- Exercise3:  Create a stored procedure which returns category of a given row. Row number is IN parameter, while category is OUT parameter. Display the returned category. CAT1 - amount > 100.000, CAT2 - amount > 10.000, CAT3 - amount <= 10.000
-DROP PROCEDURE IF EXISTS GetCategory;
-DELIMITER $$
-
-CREATE PROCEDURE GetCategory(IN  row_num INT, OUT row_category  VARCHAR(20) )
-BEGIN
-	DECLARE am DECIMAL DEFAULT 0;
-    set row_num = row_num -1;
-
-	SELECT amount INTO am FROM payments LIMIT row_num,1;
-
-	IF am > 100000 THEN
-		SET row_category = 'CAT1';
-	ELSEIF am > 10000 THEN
-		SET row_category = 'CAT2';
-	ELSEIF am <=10000 THEN
-		SET row_category = 'CAT3';
-	END IF;
+	OPEN curPhone;
     
+	-- create a copy of the customer table 
+	DROP TABLE IF EXISTS classicmodels.fixed_customers;
+	CREATE TABLE classicmodels.fixed_customers LIKE classicmodels.customers;
+	INSERT fixed_customers SELECT * FROM classicmodels.customers;
+
+	TRUNCATE messages;
+    
+	fixPhone: LOOP
+		FETCH curPhone INTO customerNumber,phone, country, city;
+		IF finished = 1 THEN 
+			LEAVE fixPhone;
+		END IF;
+		 
+		INSERT INTO messages SELECT CONCAT('country is: ', country, ' and phone is: ', phone);
+         
+		IF country = 'USA'  THEN
+			IF phone NOT LIKE '+%' THEN
+				IF LENGTH(phone) = 10 THEN 
+					SET  phone = CONCAT('+1',phone);
+					UPDATE classicmodels.fixed_customers 
+						SET fixed_customers.phone=phone 
+							WHERE fixed_customers.customerNumber = customerNumber;
+				END IF;    
+                IF LENGTH(phone) = 7 THEN
+					SET areacode = (SELECT area_codes.AreaCode FROM area_codes WHERE area_codes.city = city);
+					SET  phone = CONCAT('+1',areacode,phone);
+					UPDATE classicmodels.fixed_customers 
+						SET fixed_customers.phone=phone 
+							WHERE fixed_customers.customerNumber = customerNumber;
+				END IF;   
+			END IF;
+		END IF;
+
+	END LOOP fixPhone;
+	CLOSE curPhone;
+
 END$$
 DELIMITER ;
 
-SELECT * from payments;
+CALL FixUSPhones();
 
-CALL GetCategory(5, @category);
-SELECT @category;
+SELECT * FROM fixed_customers WHERE country = 'USA';
+
+SELECT * FROM messages;
