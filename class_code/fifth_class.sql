@@ -177,25 +177,23 @@ DELIMITER $$
 CREATE PROCEDURE LoopDemo()
 BEGIN
 	DECLARE x  INT;
-    
 	SET x = 0;
         
 	myloop: LOOP 
-	           
 		SET  x = x + 1;
 		SELECT x;
-           
 		IF  (x = 5) THEN
 			LEAVE myloop;
 		END  IF;
-         
 	END LOOP myloop;
+    
 END$$
 DELIMITER ;
 
 CALL LoopDemo();
 
 CREATE TABLE messages (message varchar(100) NOT NULL);
+SELECT * FROM messages;
 
 DROP PROCEDURE IF EXISTS LoopDemo;
 
@@ -203,22 +201,22 @@ DELIMITER $$
 CREATE PROCEDURE LoopDemo()
 BEGIN
 	DECLARE x  INT;
-    
 	SET x = 0;
      
 	TRUNCATE messages;
-	myloop: LOOP 
-	           
+	
+    myloop: LOOP 
 		SET  x = x + 1;
     	INSERT INTO messages SELECT CONCAT('x:',x);
            
 		IF  (x = 5) THEN
 			LEAVE myloop;
          	END  IF;
-         
 	END LOOP myloop;
 END$$
 DELIMITER ;
+
+CALL LoopDemo();
 
 SELECT * FROM messages;
 
@@ -233,7 +231,7 @@ BEGIN
 	DECLARE finished INTEGER DEFAULT 0;
 	DECLARE phone varchar(50) DEFAULT "x";
 	DECLARE customerNumber INT DEFAULT 0;
-    	DECLARE country varchar(50) DEFAULT "";
+	DECLARE country varchar(50) DEFAULT "";
 
 	-- declare cursor for customer
 	DECLARE curPhone
@@ -280,6 +278,7 @@ DELIMITER ;
 
 CALL FixUSPhones();
 
+SELECT * FROM customers WHERE country = 'USA';
 SELECT * FROM fixed_customers WHERE country = 'USA';
 
 SELECT * FROM messages;
