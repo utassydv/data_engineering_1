@@ -44,11 +44,11 @@ PRIMARY KEY(driver_id));
 
 CREATE TABLE races 
 (race_id INTEGER NOT NULL,
-year INTEGER NOT NULL,
-round INTEGER NOT NULL,
+race_year INTEGER NOT NULL,
+race_round INTEGER NOT NULL,
 circuit_id INTEGER NOT NULL,
 grand_prix_name VARCHAR(255) NOT NULL,
-date VARCHAR(255) NOT NULL,
+race_date VARCHAR(255) NOT NULL,
 race_time VARCHAR(255) NOT NULL,
 url VARCHAR(255) NOT NULL,
 PRIMARY KEY(race_id));
@@ -64,6 +64,9 @@ longitude VARCHAR(255) NOT NULL,
 altitude INTEGER,
 url VARCHAR(255) NOT NULL,
 PRIMARY KEY(circuit_id));
+
+-- create log_table
+CREATE TABLE log_table (log_table varchar(100) NOT NULL);
 
 -- mac: this should be ON
 SHOW VARIABLES LIKE "local_infile";
@@ -98,7 +101,7 @@ INTO TABLE races
 FIELDS TERMINATED BY ','
 LINES TERMINATED BY '\r\n'
 IGNORE 1 LINES
-(race_id, year, round, circuit_id, grand_prix_name, date, race_time, url);
+(race_id, race_year, race_round, circuit_id, grand_prix_name, race_date, race_time, url);
 
 LOAD DATA LOCAL INFILE '/Users/utassydv/Documents/workspaces/CEU/my_repos/data_engineering_1/Term DE1/formula_1_data/circuits.csv'
 INTO TABLE circuits
@@ -113,8 +116,10 @@ SELECT * FROM results;
 -- ETL PIPELINE
     
 -- joining tables, to have a table which is convenient to analyse
--- using a stored precedure to to that:
 
+
+
+-- using a stored precedure to to that:
 -- creating a table with the joint tables:
 
 DROP PROCEDURE IF EXISTS CreateF1Table;
@@ -138,7 +143,7 @@ BEGIN
 		r.position_text, 
 		r.position_order, 
 		race.grand_prix_name, 
-		race.year, 
+		race.race_year, 
 		circ.country
 	FROM 
 		results r
@@ -154,8 +159,107 @@ BEGIN
 END //
 DELIMITER ;
 
+
+
+
+
+-- creating f1_table for analysis with calling the following stored procedure
 CALL CreateF1Table();
+
+-- SELECT * FROM f1_table;
+
+
+
+
+-- create a trigger wich is executed after every insert in the races table
+-- it refreshes the f1_table, and filling it up with the new results
+DROP TRIGGER IF EXISTS after_race_insert; 
+DELIMITER $$
+CREATE TRIGGER after_race_insert
+AFTER INSERT ON races FOR EACH ROW
+BEGIN
+   	-- log the order number of the newley inserted order
+    INSERT INTO log_table SELECT CONCAT('new race id: ', NEW.race_id);
+   
+	-- archive the order and assosiated table entries to order_store
+  	INSERT INTO f1_table
+	SELECT 
+		r.result_id, 
+		d.first_name, 
+		d.last_name, 
+		d.code, 
+		d.driver_ref, 
+		c.constructor_id, 
+		c.constructor_name, 
+		r.grid, 
+		r.pos,
+		r.position_text, 
+		r.position_order, 
+		race.grand_prix_name, 
+		race.race_year, 
+		circ.country
+	FROM 
+		results r
+	INNER JOIN drivers d
+		USING(driver_id)
+	INNER JOIN constructors c
+		USING(constructor_id)
+	INNER JOIN races race
+		USING(race_id)
+	INNER JOIN circuits circ
+		USING(circuit_id)
+	WHERE race_id = NEW.race_id;
+END $$
+DELIMITER ;
+
+
+
+
+-- To test the trigger, for that we should insert a row into the races table
+-- For that it is nice if we have some results as well, 
+-- therefore I am creating a stored procedure, to insert a new race, and insert 20 new results ( 20 drivers results)
+-- (note: the value of the results are kind of dummy, it is only for testing the trigger)
+DROP PROCEDURE IF EXISTS InsertARace;
+DELIMITER $$
+CREATE PROCEDURE InsertARace(IN next_race_id INTEGER, IN next_result_id INTEGER)
+BEGIN
+    DECLARE loop_iterator INT;
     
+    SET loop_iterator = 0;
+    
+        
+	myloop: LOOP 
+			
+		SET  loop_iterator = loop_iterator + 1;
+        SET  next_result_id = next_result_id + 1;
+        
+           
+        INSERT INTO results VALUES(next_result_id, next_race_id, loop_iterator, loop_iterator, 22, 1, loop_iterator, '', loop_iterator, loop_iterator);
+		
+		
+        IF  (loop_iterator= 20) THEN
+			LEAVE myloop;
+         	END  IF;
+            
+	END LOOP myloop;
+    
+    INSERT INTO races VALUES(next_race_id, 2020, 1, 11, 'CEU' ,'',  '', 'www.ceu.com');
+    
+END$$
+DELIMITER ;
+
+
+-- can be called only once, to test trigger, for the second run, starting id-s should be modified!
+-- input parameters: next race_id, next_resut_id
+-- SELECT * from races ORDER BY race_id DESC; -- last id was 1009
+-- SELECT * from results ORDER BY result_id DESC; -- last id was 23781
+
+CALL InsertARace(1010, 23781); 
+
+SELECT * FROM log_table;
+SELECT * FROM f1_table ORDER BY result_id DESC;
+
+-- ------------------------------------------------------------------------------------------
 -- DATA MARTS
 
 
