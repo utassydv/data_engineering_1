@@ -1,7 +1,7 @@
 -- preparation part
 DROP SCHEMA IF EXISTS formula_1;
 
-
+-- ------------------------------------------------------------------------------------------
 -- OPERATIONAL LAYER
 -- creating schema
 CREATE SCHEMA formula_1;
@@ -109,19 +109,52 @@ IGNORE 1 LINES
 
 SELECT * FROM results;
 
+-- ------------------------------------------------------------------------------------------
 -- ETL PIPELINE
     
-SELECT r.result_id, d.first_name, d.last_name, d.code, d.driver_ref, c.constructor_id, c.constructor_name, r.grid, r.pos, r.position_text, r.position_order, race.grand_prix_name, race.year, circ.country
-FROM  results r
-INNER JOIN drivers d
-	USING(driver_id)
-INNER JOIN constructors c
-	USING(constructor_id)
-INNER JOIN races race
-	USING(race_id)
-INNER JOIN circuits circ
-	USING(circuit_id)
-    
+-- joining tables, to have a table which is convenient to analyse
+-- using a stored precedure to to that:
+
+-- creating a table with the joint tables:
+
+DROP PROCEDURE IF EXISTS CreateF1Table;
+DELIMITER //
+
+CREATE PROCEDURE CreateF1Table()
+BEGIN
+	DROP TABLE IF EXISTS f1_table;
+
+	CREATE TABLE f1_table AS
+	SELECT 
+		r.result_id, 
+		d.first_name, 
+		d.last_name, 
+		d.code, 
+		d.driver_ref, 
+		c.constructor_id, 
+		c.constructor_name, 
+		r.grid, 
+		r.pos,
+		r.position_text, 
+		r.position_order, 
+		race.grand_prix_name, 
+		race.year, 
+		circ.country
+	FROM 
+		results r
+	INNER JOIN drivers d
+		USING(driver_id)
+	INNER JOIN constructors c
+		USING(constructor_id)
+	INNER JOIN races race
+		USING(race_id)
+	INNER JOIN circuits circ
+		USING(circuit_id);
+		
+END //
+DELIMITER ;
+
+CALL CreateF1Table();
     
 -- DATA MARTS
 
