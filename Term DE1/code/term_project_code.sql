@@ -37,7 +37,7 @@ number  INTEGER,
 code  VARCHAR(255),
 first_name VARCHAR(255) NOT NULL,
 last_name VARCHAR(255) NOT NULL,
-dob DATE NOT NULL,
+dob DATE,
 nationality VARCHAR(255),
 url VARCHAR (255),
 PRIMARY KEY(driver_id));
@@ -110,7 +110,7 @@ LINES TERMINATED BY '\r\n'
 IGNORE 1 LINES
 (circuit_id, circuit_ref, circuit_name, location, country, latitude, longitude, altitude,url);
 
-SELECT * FROM results;
+-- SELECT * FROM results;
 
 -- ------------------------------------------------------------------------------------------
 -- ETL PIPELINE
@@ -160,15 +160,10 @@ END //
 DELIMITER ;
 
 
-
-
-
 -- creating f1_table for analysis with calling the following stored procedure
 CALL CreateF1Table();
 
 -- SELECT * FROM f1_table;
-
-
 
 
 -- create a trigger wich is executed after every insert in the races table
@@ -214,7 +209,6 @@ DELIMITER ;
 
 
 
-
 -- To test the trigger, for that we should insert a row into the races table
 -- For that it is nice if we have some results as well, 
 -- therefore I am creating a stored procedure, to insert a new race, and insert 20 new results ( 20 drivers results)
@@ -255,6 +249,7 @@ DELIMITER ;
 -- SELECT * from results ORDER BY result_id DESC; -- last id was 23781
 
 CALL InsertARace(1010, 23781); 
+CALL InsertARace(1011, 23801); 
 
 SELECT * FROM log_table;
 SELECT * FROM f1_table ORDER BY result_id DESC;
