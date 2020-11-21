@@ -127,18 +127,14 @@ DELIMITER ;
 ## DataMart
 Our dataset is great for observing F1 race results filtering by drivers, constructors, or race locations. 
 
-For that we can have DataMarts with views. I have created three of them but the most interesting one is in a stored procedure. By that, with an input parameter it can be defined which driver's result we want to see. 
+For that we can have DataMarts with views. I have created three of them 
+- A view that shows all the Hungarian GPs
+- A view that show all results by ferrari
+- A view that shows all results of Sebastian Vettel
+
 
 ```
-DROP PROCEDURE IF EXISTS GetDriverView;
-DELIMITER $$
-CREATE PROCEDURE GetDriverView(IN driver VARCHAR(100))
-BEGIN
-    
-    DROP VIEW IF EXISTS DriverView;
-	CREATE VIEW `DriverView` AS
-	SELECT * FROM f1_table WHERE f1_table.driver_ref = driver;
-    
-END$$
-
+DROP VIEW IF EXISTS HungarianGPs;
+CREATE VIEW `HungarianGPs` AS
+SELECT * FROM f1_table WHERE f1_table.country = 'Hungary';
 ```

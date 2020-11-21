@@ -266,24 +266,12 @@ DROP VIEW IF EXISTS FerrariResults;
 CREATE VIEW `FerrariResults` AS
 SELECT * FROM f1_table WHERE f1_table.constructor_name = 'Ferrari';
 
-DROP VIEW IF EXISTS FerrariResults;
-CREATE VIEW `FerrariResults` AS
-SELECT * FROM f1_table WHERE f1_table.constructor_name = 'Ferrari';
-
--- a stored procedure, that can be used, to get a view on any driver according to the driver_ref
-DROP PROCEDURE IF EXISTS GetDriverView;
-DELIMITER $$
-CREATE PROCEDURE GetDriverView(IN driver VARCHAR(100))
-BEGIN
     
-    DROP VIEW IF EXISTS DriverView;
-	CREATE VIEW `DriverView` AS
-	SELECT * FROM f1_table WHERE f1_table.driver_ref = driver;
-    
-END$$
-DELIMITER ;
+DROP VIEW IF EXISTS DriverView;
+CREATE VIEW `DriverView` AS
+SELECT * FROM f1_table WHERE f1_table.driver_ref = 'vettel';
 
-CALL GetDriverView('vettel');
+
 
 
 
