@@ -1,4 +1,4 @@
-![Database diagram](/artifacts/pngs/logo_bestteam.png)
+![logo](/Term DE2/artifacts/pngs/logo_bestteam.png)
 
 # Term Project - DE2
 
