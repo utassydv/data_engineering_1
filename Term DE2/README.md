@@ -4,7 +4,9 @@
 
 ### Background - task interpretation ###
 Our team consists of 3 very talented and motivated Business Analytics fresh grads who - against all odds - decided to make their company, called BestTeam Solutions ltd. We are not very well connected, and don’t have a lot of experience but we heard rumours that a huge navigation company, Baazee wishes to implement an audio module for bikers. It is not always obvious on motorcycles how to set up visual GPS devices, so Baazee decided to target bikers with a software which uses audio only when navigating. When we heard about the opportunity we immediately thought that this is our chance to shine.
+
 We set out to convince Baazee to hire our small company so that we can help them in this new development work by introducing a new feature. We want to forecast the probabilities of a motorcycle injury given weather conditions, date, time and geographical information. We strongly believe that other than navigation, Baazee could easily collect such data, which could be exploited for predictive models. The predictions could then be used to notify users if conditions are such that there is higher probabilty that they will suffer an incident with a potential injury. Our model would not only help the company stand out from the competition, but could also help save lives. 
+
 We decided to create a teaser in KNIME which we will show to the company representatives. This platform is great to visually demonstrate how easy it is to implement such a feature, and we can also show that we understand what we are doing. We will provide an end-to-end solution which entails data engineering, visualisation and analytics at the same time. However we also limited the scope of what we will show, as the more sophisticated work can only start once we are hired. This document is to introduce what we will include in the teaser.
 
 ### Data Sources ###
@@ -20,7 +22,9 @@ In favour of having weather data from New York city from each and every day when
 #### MongoDB ####
 
 We decided to use MongoDB - Atlas in order to store our Motor Collisions data. MongoDB would be a great choice for this company as it allows access to data very rapidly and can also scale up very easily which would be crucially important if they want to expand. We created a Project called: Data_Engineering2_assignment and our first Cluster (with an M0 Cluster tier) called AssignmentDB. This cluster uses AWS as a cloud provider, with 512 MB storage which was more than enough to store our demo data. Before loading up our csv file, we first needed to configure our MongoDB security settings.  
+
 We created one user, gave them a password and admin access, which was quite important later when we connected our instance to KNIME. We could have restricted our network access with an IP address criterion but didn’t do that for this demo. After configuration was done, we uploaded our tabular data as a collection with the use of MongoDB Compass which was stored as a document (in JSON format).
+
 For some reason we ran into errors when experimenting with the MongDB Integration KNIME package, so we employed a workaround. We made use of the Python Integration for MongoDB, and connected to our Collection with a Python Source node. We iterated through the documents with the help of a cursor and saved down our data in tabular format so that it can be used easily for analytics (a screenshot of our MongoDB cluster is available in Appendix A). 
 
 #### NOAA API and Postman ####
@@ -30,10 +34,10 @@ Throughout the Data Engineering 2. Course we learned a very useful tool, that he
 
 After starting up Postman by clicking the “+New Collection” button we are able to instantiate a collection for our project. The next step is to create a new request. In our newly created collection, we do that (see Postman screenshot 1. & 2. in appendix).
 One last step before creating a real query with postman is to set the token. By clicking a “Headers” tab we can do that by adding “token” as a key and our “TOKEN” (got in email) as a value. (see Postman screenshot 3. in appendix)
+
 We are all set, now under the “Params” tab we have an obvious panel in which we can easily manipulate a URL with different parameters, it is possible to send the request with the “Send” button and we can immediately see the result as well. (see Postman screenshot 4. In appendix).
 
 The output format of API:
-
 ![get_api_data](/Term%20DE2/artifacts/pngs/get_api_data.png)
 
 As it is obvious from the picture above, the output format of the API is JSON. For each and every day we get the requested values from all the available weather stations in New York City. The JSON snippet above is one value from one station. We can identify the type of the value according to the “datatype” key. 
@@ -115,9 +119,6 @@ Our goal was to create a teaser to convince a huge navigation company to hire us
 ### Appendix B - Postman
 
 ![postman1](/Term%20DE2/artifacts/pngs/postman1.png)
-
 ![postman2](/Term%20DE2/artifacts/pngs/postman2.png)
-
 ![postman3](/Term%20DE2/artifacts/pngs/postman3.png)
-
 ![postman4](/Term%20DE2/artifacts/pngs/postman4.png)
