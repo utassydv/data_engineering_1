@@ -1,4 +1,8 @@
+<<<<<<< Updated upstream
 ![logo](/Term DE2/artifacts/pngs/logo_bestteam.png)
+=======
+![logo](/Term%20DE2/artifacts/pngs/logo_bestteam.png)
+>>>>>>> Stashed changes
 
 # Term Project - DE2
 
@@ -33,7 +37,11 @@ One last step before creating a real query with postman is to set the token. By 
 We are all set, now under the “Params” tab we have an obvious panel in which we can easily manipulate a URL with different parameters, it is possible to send the request with the “Send” button and we can immediately see the result as well. (see Postman screenshot 4. In appendix).
 
 The output format of API:
+<<<<<<< Updated upstream
 ![Database diagram](/artifacts/pngs/get_api_data.png)
+=======
+![get_api_data](/Term%20DE2/artifacts/pngs/get_api_data.png)
+>>>>>>> Stashed changes
 
 As it is obvious from the picture above, the output format of the API is JSON. For each and every day we get the requested values from all the available weather stations in New York City. The JSON snippet above is one value from one station. We can identify the type of the value according to the “datatype” key. 
 
@@ -43,21 +51,21 @@ As it is obvious from the picture above, the output format of the API is JSON. F
 
 After we imported the data, we carried out some initial data cleaning which is contained in the Clean Collisions db metanode. We removed columns that were not relevant for our research question. Then we removed all those rows which contained null values so that they don't affect the performance and accuracy of any machine learning algorithm which we carry out later. We then created dummy variables for the ‘No of Persons Injured’ column. If no of injured was greater than 0, that incident was given a value of 1 while those with 0 injuries were given a value of 0. This column will act as outcome variable for machine learning algorithms.
 
-![Database diagram](/Term DE2/artifacts/pngs/clean_collisions.png)
+![clean_collisions](/Term%20DE2/artifacts/pngs/clean_collisions.png)
 
 #### Formatting Date column for API calls ####
 The dates in our NYC Incidents dataset is in a mm/dd/yyyy format while the dates on the NOAA website are present in yyyy-mm-dd format. In order to be able to pull data via the Climate Data API, we had to convert our present dates into mm/dd/yyyy format. Hence, we first split the data column based on ‘/’ delimiter and renamed the new 3 columns to month,day and column. When we split the column, the new columns lost the 0 with single numeric numbers e.g ‘01 ‘became ‘1’ only. So we wrote a java code that adds a 0 next to single numeric numbers. We then concatenated the 3 columns into yyyy-mm-dd format.
 
-![Database diagram](/Term DE2/artifacts/pngs/format_dates.png)
+![format_dates](/Term%20DE2/artifacts/pngs/format_dates.png)
 
 #### Usage of API in KNIME ####
 
-![Database diagram](/Term DE2/artifacts/pngs/api_knime.png)
+![api_knime](/Term%20DE2/artifacts/pngs/api_knime.png)
 
 To get weather data from the API, we used the nodes above in KNIME. In the “String Manipulation” we format the query URL, in the “GroupBy” we avoid doing redundant queries by grouping by date and in the “GETRequest” node we communicate with the API (making sure to set the token in this configuration).
 Clean API data 
 
-![Database diagram](/Term DE2/artifacts/pngs/clean_weather.png)
+![clean_weather](/Term%20DE2/artifacts/pngs/clean_weather.png)
 
 There were two crucial points we managed to solve regarding the data from the API. At first for each day we had all the variables in a JSON format, therefore we needed to extract it into a tidy format. We used the “JSON Path” node of KNIME to solve this. We had to use this online tool, to experiment with the syntax. In the end, we ended up with the following line that we used in the “JSON PATH” node: $.['results'][?(@.datatype=='<DATA-TYPE>')]['value']. After that, we had to make an aggregation on values from the distinct weather stations. To solve this we used the R integration of KNIME with the following nodes: “Table to R”, “R to Table”. Our  API extracted data was in a listed format for each row. For the aggregation, we created a function that calculates the average, and is used with “mapply()” on our data table. The mapply function which takes lists as input went through each row list and executed the average function on it.  In the following nodes, we executed some basic cleaning on our data.
 
@@ -70,14 +78,14 @@ In order to have a robust framework, we saved down our data warehouse to disk. T
 - Weather
 - Whether an injury happened or not 
 
-![Database diagram](/Term DE2/artifacts/pngs/dw_overview.png)
+![dw_overview](/Term%20DE2/artifacts/pngs/dw_overview.png)
 
 The below figure is a snapshot on the data which is in the data warehouse. For analytics we will further transform some of these variables (e.g. we will create dummy variables from categorical ones) so that they can be fed into the chosen Machine Learning models with Injury column being our target variable.
 
 ### Data Marts and analytics ###
 #### Analytics #### 
 
-![Database diagram](/Term DE2/artifacts/pngs/correlation.png)
+![corr](/Term%20DE2/artifacts/pngs/correlation.png)
 
 ** Correlation Matrix: ** We carried out Pearson's rank correlation on the data and came across some interesting results. Average Max Temperature and Average Min Temperature both are moderately positively correlated with getting injured with correlation of approx 0.28. It's a possibility that as temperatures rise, people prefer to stay indoors to avoid the heat. There is a low positive correlation of 0.17 between Mean Average Rain and getting injured. Mean Average Wind is moderately negatively correlated with getting injured with a correlation of -0.356. There seems to be no correlation between Mean Average Snow Depth and getting injured. 
 
@@ -85,11 +93,11 @@ The below figure is a snapshot on the data which is in the data warehouse. For a
 
 ** Logistic Regression: ** We use the Logistic Regression Learner node to set the dummy reference category and target column and train it for 1000 epoch. We carry out the regression via Stochastic Average Gradient (SAG) method. This node feeds into the Logistic Regression Predictor column which predicts the response using the logistic regression model. This node appends a new column to the input table containing the prediction for each row. Scorer node compares the actual column and predicted column and predicts the accuracy of the model. As an example, our model shows people are 5% more likely to get injured in July.
 
-![Database diagram](/Term DE2/artifacts/pngs/logit.png)
+![logit](/Term%20DE2/artifacts/pngs/logit.png)
 
 ** Decision tree: ** We use the Decision Tree Learner node to predict the overall model. We use the Gini method as split criteria which is defined as 1 minus the sum of the squares of the class probabilities of a dataset. Next we set the pruning setting as ‘Minimum Description Length’ (MDL) to help generalize the model better. our learned decision tree model data is input into the Decision Tree predictor node which then predicts results on testing data. The scorer node lets us know the accuracy of our model.
 
-![Database diagram](/Term DE2/artifacts/pngs/decision_tree.png)
+![decisiontree](/Term%20DE2/artifacts/pngs/decision_tree.png)
 
 ** Results: ** The Decision Tree Model did a slightly better job at predicting the testing data with a 78.5% accuracy compared to a 78.2% accuracy from the logit. Both models have capacity for a lot of improvement in terms of accuracy but considering the limited scope of our task which is to showcase our model to Baazee, we are quite satisfied with our results.
 
@@ -101,7 +109,7 @@ KNIME also has built in visualisation tools which are quite robust when it comes
 
 As expected, we can observe seasonality in the highs and lows of the average max temperature in New York. The most warmest months in the past 3 years have been June, July, and August with the highest temperatures in July reaching up to 31 degree celsius on average. Apart from some erratic trends, the lowest max average temperature drops down to 9 degree celsius in the months of Feb and March for the past 3 years. We expect to observe the same trend in the future as well.
 
-![Database diagram](/Term DE2/artifacts/pngs/avg_temp.png)
+![avg_temp](/Term%20DE2/artifacts/pngs/avg_temp.png)
 
 ### Conclusion ###
 
@@ -109,12 +117,18 @@ Our goal was to create a teaser to convince a huge navigation company to hire us
 
 ### Appendix A - MongoDB instance ###
 
-![Database diagram](/Term DE2/artifacts/pngs/avg_temp.png)
-
+![mongodb](/Term%20DE2/artifacts/pngs/avg_temp.png)
 
 ### Appendix B - Postman
 
+<<<<<<< Updated upstream
 ![Database diagram](/Term DE2/artifacts/pngs/postman1.png)
 ![Database diagram](/Term DE2/artifacts/pngs/postman2.png)
 ![Database diagram](/Term DE2/artifacts/pngs/postman3.png)
 ![Database diagram](/Term DE2/artifacts/pngs/postman4.png)
+=======
+![postman1](/Term%20DE2/artifacts/pngs/postman1.png)
+![postman2](/Term%20DE2/artifacts/pngs/postman2.png)
+![postman3](/Term%20DE2/artifacts/pngs/postman3.png)
+![postman4](/Term%20DE2/artifacts/pngs/postman4.png)
+>>>>>>> Stashed changes
