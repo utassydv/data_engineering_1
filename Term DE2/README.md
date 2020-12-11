@@ -1,8 +1,4 @@
-<<<<<<< Updated upstream
-![logo](/Term DE2/artifacts/pngs/logo_bestteam.png)
-=======
 ![logo](/Term%20DE2/artifacts/pngs/logo_bestteam.png)
->>>>>>> Stashed changes
 
 # Term Project - DE2
 
@@ -37,11 +33,8 @@ One last step before creating a real query with postman is to set the token. By 
 We are all set, now under the “Params” tab we have an obvious panel in which we can easily manipulate a URL with different parameters, it is possible to send the request with the “Send” button and we can immediately see the result as well. (see Postman screenshot 4. In appendix).
 
 The output format of API:
-<<<<<<< Updated upstream
-![Database diagram](/artifacts/pngs/get_api_data.png)
-=======
+
 ![get_api_data](/Term%20DE2/artifacts/pngs/get_api_data.png)
->>>>>>> Stashed changes
 
 As it is obvious from the picture above, the output format of the API is JSON. For each and every day we get the requested values from all the available weather stations in New York City. The JSON snippet above is one value from one station. We can identify the type of the value according to the “datatype” key. 
 
@@ -121,14 +114,10 @@ Our goal was to create a teaser to convince a huge navigation company to hire us
 
 ### Appendix B - Postman
 
-<<<<<<< Updated upstream
-![Database diagram](/Term DE2/artifacts/pngs/postman1.png)
-![Database diagram](/Term DE2/artifacts/pngs/postman2.png)
-![Database diagram](/Term DE2/artifacts/pngs/postman3.png)
-![Database diagram](/Term DE2/artifacts/pngs/postman4.png)
-=======
 ![postman1](/Term%20DE2/artifacts/pngs/postman1.png)
+
 ![postman2](/Term%20DE2/artifacts/pngs/postman2.png)
+
 ![postman3](/Term%20DE2/artifacts/pngs/postman3.png)
+
 ![postman4](/Term%20DE2/artifacts/pngs/postman4.png)
->>>>>>> Stashed changes
