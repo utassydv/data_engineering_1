@@ -33,7 +33,7 @@ One last step before creating a real query with postman is to set the token. By 
 We are all set, now under the “Params” tab we have an obvious panel in which we can easily manipulate a URL with different parameters, it is possible to send the request with the “Send” button and we can immediately see the result as well. (see Postman screenshot 4. In appendix).
 
 The output format of API:
-![Database diagram](/Term DE2/artifacts/pngs/get_api_data.png)
+![Database diagram](/artifacts/pngs/get_api_data.png)
 
 As it is obvious from the picture above, the output format of the API is JSON. For each and every day we get the requested values from all the available weather stations in New York City. The JSON snippet above is one value from one station. We can identify the type of the value according to the “datatype” key. 
 
